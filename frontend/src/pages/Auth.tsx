@@ -133,6 +133,7 @@ const Auth = () => {
         password: loginForm.password,
       });
 
+<<<<<<< HEAD
       localStorage.setItem("token", res.data.access_token);
       window.location.href = "/dashboard";
     } catch (err: any) {
@@ -146,6 +147,18 @@ const Auth = () => {
       } else {
         setLoginError(err.response?.data?.detail || "Something went wrong, Please try again");
       }
+=======
+      if (!res.ok) {
+        const errorData = await res.json();
+        setLoginError(errorData.detail || "Login failed");
+        return;
+      }
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      window.location.href = "/dashboard";
+    } catch (err) {
+      setLoginError("Something went wrong, Please try again");
+>>>>>>> origin/ai
       console.error(err);
     } finally {
       if (!otpStep) setLoading(false);
@@ -176,6 +189,7 @@ const Auth = () => {
         password: signupForm.password,
       });
 
+<<<<<<< HEAD
       toast({
         title: "Account created!",
         description: "Please check your email for the verification code.",
@@ -184,6 +198,19 @@ const Auth = () => {
       setOtpStep(true);
     } catch (err: any) {
       setSignupError(err.response?.data?.detail || "Something went wrong during signup");
+=======
+      if (!res.ok) {
+        const errorData = await res.json();
+        setSignupError(errorData.detail || "Signup failed");
+        return;
+      }
+
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token); // store JWT token
+      window.location.href = "/dashboard";
+    } catch (err) {
+      setSignupError("Something went wrong during signup");
+>>>>>>> origin/ai
       console.error(err);
       setLoading(false);
     }

@@ -22,6 +22,7 @@ from app.api.v1.routes import (
     resume,
     ai,
     contact,
+    portfolio_editor,
 )
 
 # Models (force registration)
@@ -65,6 +66,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # ─────────────────────────────────────────────
@@ -108,5 +110,7 @@ app.include_router(skills.router)
 app.include_router(profile.router)
 app.include_router(preview.router)
 app.include_router(portfolio.router)
+app.include_router(portfolio_editor.router, prefix="/api/v1")
+app.include_router(ai.router, prefix="/api/v1")
 app.include_router(resume.router, tags=["Resumes"])
 app.include_router(contact.router)

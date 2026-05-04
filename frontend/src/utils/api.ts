@@ -1,14 +1,19 @@
 // src/utils/api.ts
+<<<<<<< HEAD
 
 export const API_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = API_URL;
+=======
+import API from '@/api/axios';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+>>>>>>> origin/ai
 
 export async function getCurrentUser() {
   const token = localStorage.getItem("token");
 
   if (!token) throw new Error("No token found");
 
-  const res = await fetch(`${BASE_URL}/me`, {
+  const res = await fetch(`${BASE_URL}/api/v1/me`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -40,6 +45,29 @@ export async function getPortfolioPreview() {
   }
 
   return await res.json();
+}
+
+// ---------------- DRAFT / EDITOR ----------------
+
+
+// Get working copy (draft)
+export async function getEditorDraft() {
+  const response = await API.get('/api/v1/portfolio/editor');
+  return response.data; // { data: {...}, updated_at: "..." }
+}
+
+// Save working copy
+export async function saveDraft(draftData: any) {
+  const response = await API.post('/api/v1/portfolio/editor', {
+    data: draftData,
+  });
+  return response.data;
+}
+
+// Publish draft to live
+export async function publishPortfolio() {
+  const response = await API.post('/api/v1/portfolio/publish');
+  return response.data; // { message: "..." }
 }
 
 // ---------------- PROFILE ----------------

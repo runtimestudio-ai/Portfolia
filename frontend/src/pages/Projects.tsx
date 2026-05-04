@@ -15,6 +15,7 @@ import { usePortfolio } from '@/contexts/PortfolioContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { getUserProjects as getUserProjectsAPI, addProject as addProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, fetchGithubSummary as fetchGithubSummaryAPI } from '@/utils/api';
 import type { Project } from '@/types/project';
+import { ProjectForm } from '@/components/forms/ProjectForm';
 
 
 const Projects = () => {
@@ -194,10 +195,27 @@ const Projects = () => {
                 </DialogHeader>
 
                 {selectedProject && ( // ✅ render only when we have data
-                  <EditProjectForm
+                  <ProjectForm
                     project={selectedProject}
-                    setProjects={setLocalProjects}
-                    projects={localProjects}
+                    onSave={async (updatedProject) => {
+                      const payload = {
+                        ...updatedProject,
+                        type: updatedProject.type || 'others',
+                        imported: Boolean(updatedProject.status?.imported ?? updatedProject.imported),
+                        ai_summary: Boolean(updatedProject.status?.aiSummary ?? updatedProject.ai_summary),
+                        saved: Boolean(updatedProject.status?.saved ?? updatedProject.saved ?? true),
+                      };
+                      const updatedFromServer = await updateProjectAPI(updatedProject.id, payload);
+                      const mapped = {
+                        ...updatedFromServer,
+                        status: {
+                          imported: Boolean(updatedFromServer.imported),
+                          aiSummary: Boolean(updatedFromServer.ai_summary),
+                          saved: Boolean(updatedFromServer.saved),
+                        },
+                      };
+                      setLocalProjects(localProjects.map(p => p.id === updatedProject.id ? mapped : p));
+                    }}
                     onClose={() => setOpenEdit(false)}
                   />
                 )}
@@ -660,131 +678,7 @@ const Projects = () => {
   }
 
 
-  function EditProjectForm({ project, setProjects, projects, onClose }) {
-    const [title, setTitle] = useState(project.title);
-    const [description, setDescription] = useState(project.description || '');
-    const [stack, setStack] = useState((project.stack || []).join(', '));
-    const [features, setFeatures] = useState((project.features || []).join(', '));
-    const [link, setLink] = useState(project.link || '');
-    const [submitting, setSubmitting] = useState(false);
-    const [err, setErr] = useState<string | null>(null);
 
-    const handleSave = async () => {
-      setErr(null);
-
-      const payload = {
-        title: title.trim(),
-        description: description.trim(),
-        type: project.type || 'others',
-        stack: stack.split(',').map(s => s.trim()).filter(Boolean),
-        features: features.split(',').map(s => s.trim()).filter(Boolean),
-        stars: project.stars ?? 0,
-        forks: project.forks ?? 0,
-        link: link.trim(),
-        // keep flags as they were (or change if you want)
-        imported: project.status?.imported ?? project.imported ?? false,
-        ai_summary: project.status?.aiSummary ?? project.ai_summary ?? false,
-        saved: project.status?.saved ?? project.saved ?? true,
-      };
-
-      try {
-        setSubmitting(true);
-        const updatedFromServer = await updateProjectAPI(project.id, payload);
-
-        // Map backend flags -> UI status shape expected by cards
-        const mapped = {
-          ...updatedFromServer,
-          status: {
-            imported: Boolean(updatedFromServer.imported),
-            aiSummary: Boolean(updatedFromServer.ai_summary),
-            saved: Boolean(updatedFromServer.saved),
-          },
-        };
-
-        setProjects(projects.map((p) => (p.id === project.id ? mapped : p)));
-        onClose();
-      } catch (e: any) {
-        console.error(e);
-        setErr(e?.message || 'Failed to update project');
-      } finally {
-        setSubmitting(false);
-      }
-    };
-
-    const handleClose = () => {
-      // reset to original values (optional)
-      setTitle(project.title);
-      setDescription(project.description || '');
-      setStack((project.stack || []).join(', '));
-      setFeatures((project.features || []).join(', '));
-      setLink(project.link || '');
-      onClose();
-    };
-
-    return (
-      <div className="space-y-4">
-        {err && <div className="text-sm text-destructive">{err}</div>}
-
-        <div className="space-y-2">
-          <Label htmlFor="edit-title">Project Title</Label>
-          <Input
-            id="edit-title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="edit-description">Description</Label>
-          <Textarea
-            id="edit-description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="edit-stack">Tech Stack</Label>
-          <Input
-            id="edit-stack"
-            value={stack}
-            onChange={(e) => setStack(e.target.value)}
-            placeholder="React, FastAPI, PostgreSQL"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="edit-features">Features</Label>
-          <Input
-            id="edit-features"
-            value={features}
-            onChange={(e) => setFeatures(e.target.value)}
-            placeholder="CRUD, Auth"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="edit-link">Link</Label>
-          <Input
-            id="edit-link"
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-            placeholder="https://..."
-          />
-        </div>
-
-        <div className="flex space-x-3">
-          <Button className="btn-electric flex-1" onClick={handleSave} disabled={submitting}>
-            {submitting ? 'Saving…' : 'Save'}
-          </Button>
-          <Button className="btn-primary flex-2" variant="secondary" onClick={handleClose} disabled={submitting}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
 };
 

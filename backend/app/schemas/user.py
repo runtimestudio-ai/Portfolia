@@ -44,3 +44,9 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True  # allows Pydantic to work directly with SQLAlchemy objects
+
+
+class UsernameResponse(BaseModel):
+    """Response schema for GET /me/username helper endpoint"""
+    username: str
+

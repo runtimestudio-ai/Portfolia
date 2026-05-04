@@ -11,12 +11,13 @@ import { usePortfolio } from '@/contexts/PortfolioContext';
 interface AddItemDialogProps {
   type: 'project' | 'skill' | 'achievement';
   children?: React.ReactNode;
+  onSave?: (data: any) => void;
 }
 
-const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
+const AddItemDialog = ({ type, children, onSave }: AddItemDialogProps) => {
   const [open, setOpen] = useState(false);
   const { addProject, addSkill, addAchievement } = usePortfolio();
-  
+
   // Form states
   const [formData, setFormData] = useState({
     title: '',
@@ -50,8 +51,43 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
+      if (onSave) {
+        let data;
+        if (type === 'project') {
+          data = {
+            id: Date.now().toString(),
+            title: formData.title,
+            description: formData.description,
+            tech: formData.stack.split(',').map(s => s.trim()).filter(Boolean),
+            features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
+            demo: formData.url,
+            repo: '',
+            stars: 0
+          };
+        } else if (type === 'skill') {
+          data = {
+            name: formData.name,
+            category: formData.category,
+            level: formData.level,
+            experience: formData.experience
+          };
+        } else if (type === 'achievement') {
+          data = {
+            title: formData.title,
+            organization: formData.organization,
+            duration: formData.duration,
+            description: formData.description,
+            type: 'internship' // Default type
+          };
+        }
+        onSave(data);
+        resetForm();
+        setOpen(false);
+        return;
+      }
+
       if (type === 'project') {
         addProject({
           title: formData.title,
@@ -78,7 +114,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
           description: formData.description
         });
       }
-      
+
       // Reset form and close dialog
       resetForm();
       setOpen(false);
@@ -119,7 +155,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
         <DialogHeader>
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {type === 'project' && (
             <>
@@ -133,7 +169,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -144,7 +180,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="stack">Tech Stack (comma-separated)</Label>
                 <Input
@@ -154,7 +190,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   placeholder="React, Node.js, MongoDB"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="features">Features (comma-separated)</Label>
                 <Input
@@ -164,7 +200,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   placeholder="Authentication, Real-time updates"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="url">Project URL (optional)</Label>
                 <Input
@@ -176,7 +212,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
               </div>
             </>
           )}
-          
+
           {type === 'skill' && (
             <>
               <div className="space-y-2">
@@ -189,7 +225,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
@@ -208,7 +244,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="level">Level</Label>
                 <Select value={formData.level} onValueChange={(value) => setFormData(prev => ({ ...prev, level: value }))}>
@@ -222,7 +258,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="experience">Experience</Label>
                 <Input
@@ -235,7 +271,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
               </div>
             </>
           )}
-          
+
           {type === 'achievement' && (
             <>
               <div className="space-y-2">
@@ -248,7 +284,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="organization">Organization</Label>
                 <Input
@@ -259,7 +295,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="duration">Duration</Label>
                 <Input
@@ -269,7 +305,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
                   placeholder="Jun 2024 - Aug 2024"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -281,7 +317,7 @@ const AddItemDialog = ({ type, children }: AddItemDialogProps) => {
               </div>
             </>
           )}
-          
+
           <div className="flex space-x-3 pt-4">
             <Button type="submit" disabled={!isFormValid()} className="flex-1">
               Add {type.charAt(0).toUpperCase() + type.slice(1)}

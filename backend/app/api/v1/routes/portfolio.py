@@ -74,6 +74,7 @@ def get_portfolio_by_username(request: Request, username: str, db: Session = Dep
     """
     # Validate against reserved usernames
     if username.lower() in RESERVED_USERNAMES:
+        print(f"[DEBUG] Username '{username}' is RESERVED - returning 400")
         raise HTTPException(status_code=400, detail="Invalid username")
     
     # Case-insensitive username lookup
@@ -82,13 +83,22 @@ def get_portfolio_by_username(request: Request, username: str, db: Session = Dep
         func.lower(User.username) == username.lower()
     ).first()
     
+    print(f"[DEBUG] Looking up username: '{username}'")
+    print(f"[DEBUG] User found: {user is not None}")
+    if user:
+        print(f"[DEBUG] User.username: '{user.username}'")
+        print(f"[DEBUG] User.is_public: {user.is_public}")
+    
     if not user:
+        print(f"[DEBUG] User NOT FOUND - returning 404")
         raise HTTPException(status_code=404, detail="Portfolio not found")
     
     # Check privacy setting
     if not user.is_public:
+        print(f"[DEBUG] Portfolio is PRIVATE - returning 403")
         raise HTTPException(status_code=403, detail="Portfolio is private")
     
+    print(f"[DEBUG] Fetching portfolio data for user_id: {user.id}")
     # Fetch all portfolio data
     profile = db.query(Profile).filter(Profile.user_id == user.id).first()
     projects = db.query(Project).filter(Project.owner_id == user.id).all()
@@ -96,6 +106,8 @@ def get_portfolio_by_username(request: Request, username: str, db: Session = Dep
     certificates = db.query(Certificate).filter(Certificate.user_id == user.id).all()
     work_experience = db.query(WorkExperience).filter(WorkExperience.user_id == user.id).all()
     awards = db.query(Award).filter(Award.user_id == user.id).all()
+    
+    print(f"[DEBUG] Profile: {profile is not None}, Projects: {len(projects)}, Skills: {len(skills)}")
     
     # Build comprehensive portfolio response
     portfolio_data = {

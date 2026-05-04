@@ -32,3 +32,4 @@ class User(Base):
     awards = relationship("Award", back_populates="owner")
     skills = relationship("Skill", back_populates="user")
     profile = relationship("Profile", back_populates="user", uselist=False)
+    portfolio_draft = relationship("PortfolioDraft", back_populates="user", uselist=False)
