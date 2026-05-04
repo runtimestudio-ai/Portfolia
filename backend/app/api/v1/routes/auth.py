@@ -354,6 +354,5 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
     token = create_access_token(data={"sub": user.email, "username": user.username})
 
     # 5. Redirect to Frontend Dashboard with Token
-    # Using 127.0.0.1:8080 for consistency
-    frontend_url = "http://127.0.0.1:8080"
-    return RedirectResponse(f"{frontend_url}/auth?token={token}")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:8080")
+    return RedirectResponse(f"{frontend_url}/auth?token={token}")
