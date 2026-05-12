@@ -38,18 +38,18 @@
 
 ### 🧠 AI-Powered Enhancements (LLM)
 
-* Generate a neat project summary from raw README content
-* Extract tech stacks automatically
-* Summarize resume content (from PDF upload) into key achievements/skills
-* Identify top skills and tag proficiency levels
+* **Smart Portfolio Co-Pilot**: Real-time analysis of your portfolio content with tailored suggestions based on your target role.
+* **AI-Enhanced Descriptions**: Generate professional, ATS-optimized project descriptions with multiple variants (Short, Medium, Long).
+* **Automated Tech Stack Extraction**: Identifies and tags technologies directly from project data.
+* **Resume Intelligence**: Parses PDFs to extract achievements and skills with AI-driven proficiency tagging.
 
 ### 📄 Portfolio Builder
 
-* Fully responsive UI (mobile + desktop)
-* Add/Edit/Delete projects, skills, and achievements manually
-* Real-time Portfolio Preview
-* Export to PDF / Share via public URL
-* Theme switcher (Light · Soft · Neon)
+* **Dual-Pane Sidebar Editor**: A unified workspace combining manual CRUD forms and AI suggestions.
+* **Interactive Live Preview**: Click-to-edit sections that automatically open and focus the sidebar editor.
+* **Dynamic Template System**: High-fidelity templates (Classic, Modern, Creative) with real-time style switching.
+* **Robust Data Management**: Integrated handling for Projects, Skills, Achievements, and Certifications.
+* **Export & Sharing**: Export to PDF or share via a public URL (in progress).
 
 ### 🧩 Pages
 
@@ -136,11 +136,12 @@ npm run dev
 
 ## 📌 Project Status
 
-* ✅ Frontend UI fully built
-* ✅ GitHub API working (import, readme fetch)
-* 🔄 LLM integration in progress
-* 🔜 Resume parsing, skill detection
-* 🔜 PDF export & live share URL
+* ✅ Frontend UI & UX Overhaul Complete
+* ✅ AI Assistant Sidebar & Dual-Pane Editor Integrated
+* ✅ GitHub API Integration (Import, README Fetch)
+* ✅ Groq AI Integration (Descriptions, Variants)
+* ✅ Resume Parsing & Skill Detection
+* 🔄 PDF Export & Public Sharing Implementation
 
 ---
 
