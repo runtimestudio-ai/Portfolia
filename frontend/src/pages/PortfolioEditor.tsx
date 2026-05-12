@@ -140,6 +140,7 @@ const PortfolioEditor = () => {
   const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState(true);
   const [currentTemplate, setCurrentTemplate] = useState<TemplateType>('classic');
+  const [activeSection, setActiveSection] = useState<string>('personal');
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const { user, loading } = useAuthContext();
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
@@ -620,61 +621,38 @@ const PortfolioEditor = () => {
                           {/* Professional Typography */}
                           <div className="flex-1 text-center lg:text-left space-y-6">
                             <div className="space-y-4">
-                              <h1 className="text-5xl lg:text-7xl font-bold text-foreground leading-tight">
-                                <EditableText
-                                  value={portfolioData.name}
-                                  onSave={(val) => {
-                                    const newData = { ...portfolioData };
-                                    newData.name = val;
-                                    setPortfolioData(newData);
-                                  }}
-                                  placeholder="Your Name"
-                                />
+                              <h1 
+                                className="text-5xl lg:text-7xl font-bold text-foreground leading-tight cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => { setActiveSection('personal'); setIsAIPanelOpen(true); }}
+                              >
+                                {portfolioData.name || "Your Name"}
                               </h1>
-
                               <div className="space-y-2">
-                                <div className="text-2xl lg:text-3xl font-medium text-muted-foreground">
-                                  <EditableText
-                                    value={portfolioData.title}
-                                    onSave={(val) => {
-                                      const newData = { ...portfolioData };
-                                      newData.title = val;
-                                      setPortfolioData(newData);
-                                    }}
-                                    placeholder="Professional Title"
-                                  />
+                                <div 
+                                  className="text-2xl lg:text-3xl font-medium text-muted-foreground cursor-pointer hover:opacity-80 transition-opacity"
+                                  onClick={() => { setActiveSection('personal'); setIsAIPanelOpen(true); }}
+                                >
+                                  {portfolioData.title || "Professional Title"}
                                 </div>
                                 <div className="w-24 h-1 bg-primary mx-auto lg:mx-0 rounded-full" />
                               </div>
 
-                              <div className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed block">
-                                <EditableTextarea
-                                  value={portfolioData.tagline || ''}
-                                  onSave={(val) => {
-                                    const newData = { ...portfolioData };
-                                    newData.tagline = val;
-                                    setPortfolioData(newData);
-                                  }}
-                                  placeholder="Brief tagline or intro..."
-                                  className="min-h-[3rem]"
-                                />
+                              <div 
+                                className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed block cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => { setActiveSection('personal'); setIsAIPanelOpen(true); }}
+                              >
+                                {portfolioData.tagline || "Brief tagline or intro..."}
                               </div>
                             </div>
 
                             {/* Clean Contact Info */}
                             <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                              <div className="bg-card border border-border px-4 py-2 rounded-lg flex items-center space-x-2 shadow-sm">
+                              <div 
+                                className="bg-card border border-border px-4 py-2 rounded-lg flex items-center space-x-2 shadow-sm cursor-pointer hover:bg-muted/50 transition-colors"
+                                onClick={() => { setActiveSection('personal'); setIsAIPanelOpen(true); }}
+                              >
                                 <MapPin className="w-4 h-4 text-muted-foreground" />
-                                <EditableText
-                                  value={portfolioData.location}
-                                  onSave={(val) => {
-                                    const newData = { ...portfolioData };
-                                    newData.location = val;
-                                    setPortfolioData(newData);
-                                  }}
-                                  placeholder="City, Country"
-                                  className="font-medium"
-                                />
+                                <span className="font-medium text-foreground">{portfolioData.location || "City, Country"}</span>
                               </div>
                               <a
                                 href={`mailto:${portfolioData.email}`}
@@ -780,18 +758,12 @@ const PortfolioEditor = () => {
                           <EditButton section="about" />
 
                           <div className="p-8">
-                            <div className="max-w-3xl mx-auto">
-                              <EditableTextarea
-                                value={portfolioData.about}
-                                onSave={(val) => {
-                                  const newData = { ...portfolioData };
-                                  newData.about = val;
-                                  setPortfolioData(newData);
-                                }}
-                                className="text-lg text-muted-foreground leading-relaxed text-center min-h-[100px]"
-                                placeholder="Write a brief bio about yourself..."
-                              />
-                            </div>
+                              <div 
+                                className="text-lg text-muted-foreground leading-relaxed text-center min-h-[60px] cursor-pointer hover:bg-muted/30 p-4 rounded-lg transition-colors"
+                                onClick={() => { setActiveSection('personal'); setIsAIPanelOpen(true); }}
+                              >
+                                {portfolioData.about || "Write a brief bio about yourself..."}
+                              </div>
                           </div>
                         </Card>
                       </div>
@@ -813,8 +785,11 @@ const PortfolioEditor = () => {
                           </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-                          <EditButton section="Projects" />
+                        <div 
+                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative group/projects transition-all"
+                          onClick={() => { setActiveSection('projects'); setIsAIPanelOpen(true); }}
+                        >
+                          <div className="absolute -inset-4 border-2 border-dashed border-primary/0 group-hover/projects:border-primary/20 rounded-3xl pointer-events-none transition-all" />
                           {portfolioData.projects.map((project, index) => (
                             <Card
                               key={project.id}
@@ -980,8 +955,11 @@ const PortfolioEditor = () => {
                           </p>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-8 relative px-4">
-                          <EditButton section="Skills" />
+                        <div 
+                          className="grid md:grid-cols-2 gap-8 relative px-4 group/skills transition-all"
+                          onClick={() => { setActiveSection('skills'); setIsAIPanelOpen(true); }}
+                        >
+                          <div className="absolute -inset-4 border-2 border-dashed border-primary/0 group-hover/skills:border-primary/20 rounded-3xl pointer-events-none transition-all" />
                           {Object.entries(skillsByCategory).map(([category, categorySkills], categoryIndex) => (
                             <Card
                               key={category}
@@ -1119,8 +1097,11 @@ const PortfolioEditor = () => {
                           </p>
                         </div>
 
-                        <div className="relative">
-                          <EditButton section="Achievements" />
+                        <div 
+                          className="relative group/achievements transition-all"
+                          onClick={() => { setActiveSection('achievements'); setIsAIPanelOpen(true); }}
+                        >
+                          <div className="absolute -inset-4 border-2 border-dashed border-primary/0 group-hover/achievements:border-primary/20 rounded-3xl pointer-events-none transition-all" />
 
                           {/* Mobile Cards Layout */}
                           <div className="block md:hidden">
@@ -2464,8 +2445,11 @@ const PortfolioEditor = () => {
                           <div className="w-32 h-1 bg-gradient-primary mx-auto rounded-full glow-electric"></div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 relative">
-                          <EditButton section="Certificates" />
+                        <div 
+                          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 relative group/certs transition-all"
+                          onClick={() => { setActiveSection('certificates'); setIsAIPanelOpen(true); }}
+                        >
+                          <div className="absolute -inset-4 border-2 border-dashed border-primary/0 group-hover/certs:border-primary/20 rounded-3xl pointer-events-none transition-all" />
                           {portfolioData.certificates.map((cert, index) => (
                             <div
                               key={index}
@@ -2570,9 +2554,14 @@ const PortfolioEditor = () => {
 
         <VerticalToggle isOpen={isAIPanelOpen} onToggle={() => setIsAIPanelOpen(!isAIPanelOpen)} />
 
-        {/* RIGHT PANEL - AI Assistant */}
-        <div className={`transition-all duration-300 overflow-hidden bg-muted/30 ${isAIPanelOpen ? 'w-[35%]' : 'w-0'}`}>
-          <AIAssistantPanel />
+        {/* RIGHT PANEL - AI Assistant & Editor */}
+        <div className={`transition-all duration-300 overflow-hidden bg-background shadow-2xl border-l z-20 ${isAIPanelOpen ? 'w-[35%]' : 'w-0'}`}>
+          <AIAssistantPanel 
+            data={portfolioData} 
+            onDataUpdate={(newData) => setPortfolioData(newData)}
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
+          />
         </div>
 
         {
