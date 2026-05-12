@@ -144,7 +144,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8 animate-fade-in">
           <h1 className="text-3xl lg:text-4xl font-space font-bold mb-2">
-            Welcome back, <span className="text-3xl lg:text-4xl font-space font-bold text-gradient-primary mb-2">{user?.full_name.charAt(0).toUpperCase() + user?.full_name.slice(1)}</span> 👋
+            Welcome back, <span className="text-3xl lg:text-4xl font-space font-bold text-gradient-primary mb-2">{(user?.full_name || 'User').split(' ')[0]}</span> 👋
           </h1>
           <p className="text-foreground-muted text-lg">
             Let's continue building your amazing portfolio

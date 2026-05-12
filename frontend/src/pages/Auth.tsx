@@ -7,12 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthContext } from '@/contexts/AuthContext';
 import API from '@/api/axios';
 import { API_URL } from '@/utils/api';
 
 const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { login } = useAuthContext();
   const [searchParams] = useSearchParams();
   const [loginError, setLoginError] = useState('');
   const [signupError, setSignupError] = useState('');
@@ -83,14 +85,15 @@ const Auth = () => {
   useEffect(() => {
     const token = searchParams.get('token');
     if (token) {
-      localStorage.setItem("token", token);
-      toast({
-        title: "Logged in with Google",
-        description: "Welcome back!",
+      login(token).then(() => {
+        toast({
+          title: "Logged in with Google",
+          description: "Welcome back!",
+        });
+        navigate('/dashboard');
       });
-      navigate('/dashboard');
     }
-  }, [searchParams, navigate, toast]);
+  }, [searchParams, navigate, toast, login]);
 
   useEffect(() => {
     // Fetch CSRF token on mount to ensure cookie is set
@@ -133,8 +136,8 @@ const Auth = () => {
         password: loginForm.password,
       });
 
-      localStorage.setItem("token", res.data.access_token);
-      window.location.href = "/dashboard";
+      await login(res.data.access_token);
+      navigate("/dashboard");
     } catch (err: any) {
       if (err.response?.status === 403 && err.response?.data?.verified === false) {
         toast({
@@ -198,8 +201,8 @@ const Auth = () => {
         email: verifyingEmail,
         otp_code: otpCode
       });
-      localStorage.setItem("token", res.data.access_token);
-      window.location.href = "/dashboard";
+      await login(res.data.access_token);
+      navigate("/dashboard");
     } catch (err: any) {
       setOtpError(err.response?.data?.detail || "Verification failed");
     } finally {

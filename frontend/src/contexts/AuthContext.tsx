@@ -1,5 +1,5 @@
-// src/context/AuthContext.tsx
-import { createContext, useContext, useEffect, useState } from "react";
+// src/contexts/AuthContext.tsx
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { getCurrentUser } from "@/utils/api";
 
 type User = {
@@ -12,12 +12,14 @@ type User = {
 type AuthContextType = {
   user: User | null;
   loading: boolean;
+  login: (token: string) => Promise<void>;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  login: async () => {},
   logout: () => {},
 });
 
@@ -25,23 +27,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Runs on app load
-  useEffect(() => {
+  const fetchUser = useCallback(async () => {
     const token = localStorage.getItem("token");
-    if (token) {
-      getCurrentUser()
-        .then((data) => {
-          setUser(data);
-        })
-        .catch(() => {
-          localStorage.removeItem("token");
-          setUser(null);
-        })
-        .finally(() => setLoading(false));
-    } else {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await getCurrentUser();
+      setUser(data);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      localStorage.removeItem("token");
+      setUser(null);
+    } finally {
       setLoading(false);
     }
   }, []);
+
+  // Runs on app load
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  const login = async (token: string) => {
+    localStorage.setItem("token", token);
+    await fetchUser();
+  };
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -49,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -57,3 +71,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 // Export a custom hook for easy access
 export const useAuthContext = () => useContext(AuthContext);
+

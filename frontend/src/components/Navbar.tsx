@@ -30,7 +30,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {!isLandingPage && (
+            {user ? (
               <div className="flex items-center space-x-6">
                 <Link
                   to="/dashboard"
@@ -68,13 +68,15 @@ const Navbar = () => {
                 >
                   Export
                 </Link>
-
-
-
+                <Link to="/profile" className="p-2 rounded-full hover:bg-muted transition-colors">
+                  <User className="w-6 h-6 text-foreground-muted" />
+                </Link>
+                <LogOut
+                  className="w-4 h-4 text-foreground-muted text-red-500 hover:text-red-700 cursor-pointer"
+                  onClick={handleLogout}
+                />
               </div>
-            )}
-
-            {isLandingPage ? (
+            ) : (
               <div className="flex items-center space-x-4">
                 <Link to="/auth">
                   <Button variant="ghost" size="sm">
@@ -87,18 +89,7 @@ const Navbar = () => {
                   </Button>
                 </Link>
               </div>
-            ) : (
-              <>
-                <Link to="/profile" className="p-2 rounded-full hover:bg-muted transition-colors">
-                  <User className="w-6 h-6 text-foreground-muted" />
-                </Link>
-                <LogOut
-                  className="w-4 h-4 text-foreground-muted text-red-500 hover:text-red-700 cursor-pointer"
-                  onClick={handleLogout}
-                />
-              </>
             )}
-
           </div>
 
           {/* Mobile Menu Button */}
@@ -116,7 +107,7 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-white/20 mt-2 pt-4 pb-4 animate-slide-in-up">
             <div className="flex flex-col space-y-4">
-              {!isLandingPage && (
+              {user ? (
                 <>
                   <Link
                     to="/dashboard"
@@ -170,11 +161,8 @@ const Navbar = () => {
                   >
                     Logout
                   </Button>
-
                 </>
-              )}
-
-              {isLandingPage && (
+              ) : (
                 <div className="flex flex-col space-y-3">
                   <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
