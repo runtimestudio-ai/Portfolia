@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -19,6 +19,9 @@ export function ProjectDetailsModal({ isOpen, onClose, project }: ProjectDetails
                     <DialogTitle className="text-2xl font-bold text-gradient-primary">
                         {project.title}
                     </DialogTitle>
+                    <DialogDescription>
+                        Full details and statistics for this project.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6 py-4">

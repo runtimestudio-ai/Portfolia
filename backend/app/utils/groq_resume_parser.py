@@ -3,17 +3,17 @@
 Minimal Groq LLM-based resume parser.
 Single function, single prompt, strict JSON output.
 """
-import os
 import json
 import logging
 from typing import Dict, Any
-from groq import Groq
+from fastapi import HTTPException
+from app.utils.groq_client import get_groq_client
 from app.schemas.resume import ResumeExtractedData
 
 logger = logging.getLogger(__name__)
 
-# Groq client
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+# Get central Groq client
+client = get_groq_client()
 
 # Strict JSON prompt
 RESUME_PARSING_PROMPT = """Extract ALL information from this resume and return ONLY valid JSON.
@@ -115,6 +115,9 @@ def parse_resume_with_groq(resume_text: str) -> ResumeExtractedData:
         logger.info("Calling Groq API for resume parsing...")
         
         # Call Groq
+        if not client:
+            raise HTTPException(status_code=500, detail="Groq API key not configured.")
+            
         chat_completion = client.chat.completions.create(
             messages=[
                 {

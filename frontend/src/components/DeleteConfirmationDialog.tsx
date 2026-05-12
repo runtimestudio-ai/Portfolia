@@ -4,6 +4,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
+    DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
@@ -31,6 +32,9 @@ export function DeleteConfirmationDialog({
                         <AlertTriangle className="w-5 h-5" />
                         Delete {itemType}?
                     </DialogTitle>
+                    <DialogDescription>
+                        This will permanently remove the {itemType.toLowerCase()} from your portfolio.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="py-4 space-y-3">

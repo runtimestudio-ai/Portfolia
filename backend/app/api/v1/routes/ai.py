@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.dependencies.auth_user import get_current_user
 from app.database import get_db
 from app.schemas.ai import EnhanceProjectRequest, EnhanceProjectResponse, EnhancedVariant
-from app.utils.openrouter_client import generate_variants_from_openrouter
+from app.utils.groq_client import generate_variants_from_groq
 from app.models.user import User
 
 router = APIRouter(prefix="/ai", tags=["AI"])
@@ -83,29 +83,47 @@ Tone requirements:
 Length: {payload.length} description (~{length_hint}).
 
 Rules:
-- Primary tone must dominate.
-- Secondary tone, if provided, should only lightly influence wording.
-- Keep content truthful and concise.
-- Do not exaggerate or fabricate metrics.
-- Generate exactly 3 variations.
-- Each variation must be a single plain-text paragraph.
-- Do NOT include headings, titles, bullets, numbering, quotes, or labels like "Variation 1".
-- Separate the three variations using the delimiter: |||
-- Return ONLY the three paragraphs with this delimiter between them, nothing else.
+1. Generate EXACTLY 3 variations.
+2. Each variation must be a single plain-text paragraph.
+3. Use the delimiter "|||" between variations.
+4. Format: Variation 1 ||| Variation 2 ||| Variation 3
+5. DO NOT include any other text, headings, or numbering.
+6. Primary tone must dominate; Secondary tone (if any) should be a subtle influence.
+7. Keep content truthful and concise.
 """
 
     full_prompt = system_prompt + "\n\n" + user_prompt
 
-    # Call OpenRouter helper
+    # Call Groq helper
     try:
-        texts = await generate_variants_from_openrouter(full_prompt, n_variants=3)
+        # Use n_variants=1 because the prompt asks for 3 variations in one block separated by |||
+        raw_texts = await generate_variants_from_groq(user_prompt, n_variants=1, system_message=system_prompt)
     except HTTPException:
-        # Re-raise as-is so the client gets a friendly message
         raise
+
+    # Process the response to extract the 3 variants
+    texts = []
+    if raw_texts:
+        content = raw_texts[0]
+        # Split by the delimiter |||
+        if '|||' in content:
+            parts = content.split('|||')
+            texts = [p.strip() for p in parts if p.strip()]
+        else:
+            # Fallback: try splitting by double newlines if no delimiter found
+            parts = content.split('\n\n')
+            texts = [p.strip() for p in parts if p.strip()]
+
+    # Ensure we don't return more than 3
+    texts = texts[:3]
+
+    # If the model didn't use ||| but still returned something, fallback to the whole content as one variant
+    if not texts and raw_texts:
+        texts = [raw_texts[0]]
 
     variants = [
         EnhancedVariant(id=index, text=text)
-        for index, text in enumerate(texts, start=1)
+        for index, text in enumerate(texts[:3], start=1)
     ]
 
     return EnhanceProjectResponse(variants=variants)

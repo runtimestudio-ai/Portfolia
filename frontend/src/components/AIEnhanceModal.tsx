@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Sparkles, Loader2, AlertCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -134,6 +134,9 @@ export function AIEnhanceModal({ isOpen, onClose, project, onApply }: AIEnhanceM
                         <Sparkles className="w-5 h-5 text-primary" />
                         AI Enhance Project Description
                     </DialogTitle>
+                    <DialogDescription>
+                        Optimize your project description for different lengths and tones using AI.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6 py-4">

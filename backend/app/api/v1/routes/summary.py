@@ -1,19 +1,16 @@
 import os
 import requests
+import json
 from fastapi import APIRouter, Query
 from dotenv import load_dotenv
-import json
+from app.utils.groq_client import generate_variants_from_groq
 
 load_dotenv()
 
 router = APIRouter()
 
-API_KEY = os.getenv("OPENROUTER_API_KEY")
-MODEL = os.getenv("MODEL", "google/gemma-3-4b-it:free")
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-
 @router.get("/smart-summary")
-def github_summary(repo_url: str = Query(..., description="GitHub repo URL")):
+async def github_summary(repo_url: str = Query(..., description="GitHub repo URL")):
     try:
         if "github.com" not in repo_url:
             return {"error": "Invalid GitHub URL"}
@@ -76,31 +73,14 @@ README:
 {readme if readme_available else "Not available. Only use project name."}
 """
 
-        # OpenRouter headers
-        headers = {
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://openrouter.ai"
-        }
-
-        payload = {
-            "model": MODEL,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "max_tokens": 500,
-            "temperature": 0.2
-        }
-
-
-        response = requests.post(OPENROUTER_URL, json=payload, headers=headers)
-        if response.status_code != 200:
-            return {"error": f"OpenRouter error: {response.text}"}
-
-        content = response.json()["choices"][0]["message"]["content"].strip()
+        # Use Groq for summary
+        try:
+            raw_texts = await generate_variants_from_groq(prompt, n_variants=1, system_message="You are an assistant that summarizes GitHub projects into structured JSON.")
+            if not raw_texts:
+                return {"error": "Groq returned an empty response"}
+            content = raw_texts[0].strip()
+        except Exception as e:
+            return {"error": f"Groq error: {str(e)}"}
 
         # Remove Markdown code fences if present
         if content.startswith("```"):

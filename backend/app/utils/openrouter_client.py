@@ -4,8 +4,8 @@ import httpx
 from fastapi import HTTPException
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-PRIMARY_MODEL = "google/gemma-3-4b-it:free"
-FALLBACK_MODEL = "meta-llama/llama-3.1-8b-instruct:free"
+PRIMARY_MODEL = os.getenv("MODEL", "google/gemma-2-9b-it:free")
+FALLBACK_MODEL = os.getenv("FALLBACK_MODEL", "meta-llama/llama-3.2-3b-instruct:free")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
