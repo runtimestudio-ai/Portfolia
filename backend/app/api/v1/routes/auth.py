@@ -35,7 +35,7 @@ def get_csrf_token(response: Response, csrf_protect: CsrfProtect = Depends()):
     return {"detail": "CSRF token set"}
 
 @router.post("/password-reset-request")
-@limiter.limit("3/hour")
+@limiter.exempt
 async def password_reset_request(request: Request, reset_data: PasswordResetRequest, db: Session = Depends(get_db)):
     """
     Generate a reset token and send an email to the user.
@@ -70,7 +70,7 @@ def validate_reset_token(token: str, db: Session = Depends(get_db)):
     return {"valid": True, "email": user.email}
 
 @router.post("/password-reset-confirm")
-@limiter.limit("3/hour")
+@limiter.exempt
 def password_reset_confirm(request: Request, confirm_data: PasswordResetConfirm, db: Session = Depends(get_db)):
     """
     Reset the user's password using a valid token.
@@ -92,7 +92,7 @@ def password_reset_confirm(request: Request, confirm_data: PasswordResetConfirm,
     return {"message": "Password reset successful. You can now log in with your new password."}
 
 @router.post("/signup", response_model=SignupResponse)
-@limiter.limit("3/hour")
+@limiter.exempt
 async def signup(request: Request, response: Response, user: UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
@@ -136,7 +136,7 @@ async def signup(request: Request, response: Response, user: UserCreate, db: Ses
 
 
 @router.post("/login")
-@limiter.limit("5/15minutes")
+@limiter.exempt
 def login(request: Request, response: Response, user: UserLogin, db: Session = Depends(get_db), csrf_protect: CsrfProtect = Depends()):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user:
@@ -226,7 +226,7 @@ async def verify_otp(request: Request, response: Response, data: VerifyOTPReques
     }
 
 @router.post("/resend-otp")
-@limiter.limit("3/hour")
+@limiter.exempt
 async def resend_otp(request: Request, email_data: dict, db: Session = Depends(get_db)):
     email = email_data.get("email")
     if not email:

@@ -306,7 +306,7 @@ const Auth = () => {
               <img src="/programming.png" alt="Icon" className="w-14 h-14 object-contain" />
             </div>
             <h1 className="text-2xl font-space font-bold text-gradient-primary mb-2">
-              Welcome to PortFoliaaaaa
+              Welcome to PortFolia
             </h1>
             <p className="text-foreground-muted">
               Build your professional identity with AI
